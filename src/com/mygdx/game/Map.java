@@ -28,12 +28,12 @@ public class Map {
 		return groundBody;
 	}
 	
-	public Point getPlayerSpawnLoc() {
+	public Point getSpawnLoc(String spawn) {
 		MapLayer layer = map.getLayers().get("spawns");
 
 		Point playerSpawnLoc = new Point();
 		for (MapObject mo : layer.getObjects()) {
-			if (mo.getName() != null && mo.getName().equals("player")) {
+			if (mo.getName() != null && mo.getName().equals(spawn)) {
 				RectangleMapObject rmo = (RectangleMapObject) mo;
 				Rectangle rectangle = rmo.getRectangle();
 				playerSpawnLoc = new Point();

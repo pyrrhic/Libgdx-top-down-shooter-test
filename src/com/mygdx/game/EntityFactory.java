@@ -11,12 +11,14 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.joints.FrictionJoint;
 import com.badlogic.gdx.physics.box2d.joints.FrictionJointDef;
 import com.mygdx.components.Bullet;
+import com.mygdx.components.Enemy;
 import com.mygdx.components.Gun;
 import com.mygdx.components.LifeInSeconds;
 import com.mygdx.components.Movable;
 import com.mygdx.components.Physics;
 import com.mygdx.components.Player;
 import com.mygdx.components.Position;
+import com.mygdx.game.CollisionHandler.EntityCategory;
 
 
 public class EntityFactory {
@@ -29,23 +31,6 @@ public class EntityFactory {
 	
 	private World world;
 	private com.badlogic.gdx.physics.box2d.World box2dWorld;
-	
-	public enum EntityCategory {
-		GROUND((short)0x0001),
-		PROJECTILE((short)0x0002),
-		WALL((short)0x0004),
-		BEING((short)0x008);
-		
-		private short value;
-		
-		EntityCategory(short value) {
-			this.value = value;
-		}
-		
-		public short getValue() {
-			return value;	
-		}
-	}
 	
 	public void setEntityWorld(World world) {
 		this.world = world;
@@ -71,7 +56,7 @@ public class EntityFactory {
 		fixDef.density = 1;
 		fixDef.friction = .2f;
 		fixDef.filter.categoryBits = EntityCategory.BEING.getValue();
-		fixDef.filter.maskBits = (short) (EntityCategory.PROJECTILE.getValue() ^ EntityCategory.WALL.getValue());
+		fixDef.filter.maskBits = (short) (EntityCategory.PROJECTILE.getValue() ^ EntityCategory.WALL.getValue() ^ EntityCategory.BEING.getValue());
 		body.createFixture(fixDef);		
 		
 		FrictionJointDef frictionJointDef = new FrictionJointDef();
@@ -86,7 +71,45 @@ public class EntityFactory {
 		e.addComponent(new Movable(100 ,100));
 		e.addComponent(new Position(x, y));
 		
-		e.addComponent(new Gun(1, 3)); //move this
+		e.addComponent(new Gun(.7f, 3)); //move this
+		
+		body.setUserData(e);
+		
+		e.addToWorld();
+	}
+	
+	public void createEnemy(float x, float y, Body ground) {
+		float width = 32;
+		float height = 32;
+		
+		BodyDef bodyDef = new BodyDef();
+		bodyDef.type = BodyType.DynamicBody;
+		bodyDef.position.set(UnitConverter.libCoordToBox2dCoord(x, width), UnitConverter.libCoordToBox2dCoord(y, height));
+		Body body = box2dWorld.createBody(bodyDef);
+		
+		FixtureDef fixDef = new FixtureDef();
+		PolygonShape playerRectangle = new PolygonShape();
+		playerRectangle.setAsBox(UnitConverter.convertPixelsToMeters(width) / 2, UnitConverter.convertPixelsToMeters(height) / 2);
+		fixDef.shape = playerRectangle;
+		fixDef.density = 1;
+		fixDef.friction = .2f;
+		fixDef.filter.categoryBits = EntityCategory.BEING.getValue();
+		fixDef.filter.maskBits = (short) (EntityCategory.PROJECTILE.getValue() ^ EntityCategory.WALL.getValue() ^ EntityCategory.BEING.getValue());
+		body.createFixture(fixDef);		
+		
+		FrictionJointDef frictionJointDef = new FrictionJointDef();
+		frictionJointDef.initialize(body, ground, body.getWorldCenter());
+		FrictionJoint frictionJoint = (FrictionJoint) box2dWorld.createJoint(frictionJointDef);
+		frictionJoint.setMaxForce(50);
+		frictionJoint.setMaxTorque(50);
+		
+		Entity e = world.createEntity();
+		e.addComponent(new Enemy());
+		e.addComponent(new Physics(body));
+		e.addComponent(new Movable(100 ,100));
+		e.addComponent(new Position(x, y));
+		
+		e.addComponent(new Gun(.7f, 3)); //move this
 		
 		body.setUserData(e);
 		

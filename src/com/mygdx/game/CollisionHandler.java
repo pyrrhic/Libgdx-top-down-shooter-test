@@ -10,6 +10,23 @@ import com.mygdx.components.Collision;
 
 public class CollisionHandler implements ContactListener {
 	
+	public enum EntityCategory {
+		GROUND((short)0x0001),
+		PROJECTILE((short)0x0002),
+		WALL((short)0x0004),
+		BEING((short)0x008);
+		
+		private short value;
+		
+		EntityCategory(short value) {
+			this.value = value;
+		}
+		
+		public short getValue() {
+			return value;	
+		}
+	}
+	
 	@Override
 	public void beginContact(Contact contact) {
 		Entity e1 = (Entity)contact.getFixtureA().getBody().getUserData();

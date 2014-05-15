@@ -27,11 +27,11 @@ public class BulletCollisionSystem extends EntityProcessingSystem {
 		for(Entity collisionEntity : collision.getEntityCollisions()) {
 			Bullet collisionBullet = bulletMapper.get(collisionEntity);
 			if (collisionBullet == null) {
-//				LifeInSeconds lifeInSeconds = lifeInSecondsMapper.get(e);
-//				lifeInSeconds.lifeInSeconds = 0;
-//				
-//				e.removeComponent(collision);
-//				e.changedInWorld();
+				LifeInSeconds lifeInSeconds = lifeInSecondsMapper.get(e);
+				lifeInSeconds.lifeInSeconds = 0;
+				
+				e.removeComponent(collision);
+				e.changedInWorld();
 			}	
 		}
 	}

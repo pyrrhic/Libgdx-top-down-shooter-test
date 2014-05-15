@@ -6,6 +6,7 @@ import com.artemis.World;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
+import com.badlogic.gdx.graphics.FPSLogger;
 import com.badlogic.gdx.graphics.GL20;
 import com.badlogic.gdx.graphics.OrthographicCamera;
 import com.badlogic.gdx.math.Matrix4;
@@ -34,6 +35,8 @@ public class LevelOne implements Screen {
 	
 	private OrthographicCamera camera;
 	
+	private FPSLogger fps = new FPSLogger();
+	
 	public LevelOne(Game game) {		
 		camera = AssetManager.getInstance().getCamera();
 		
@@ -58,10 +61,15 @@ public class LevelOne implements Screen {
 		//some of the input
 		Gdx.input.setInputProcessor(inputSystem);
 		
-		//misc
+		//misc like player, map, enemies, etc
 		Map map = new Map();
-		Point playerSpawn = map.getPlayerSpawnLoc();
+		
+		Point playerSpawn = map.getSpawnLoc("player");
 		EntityFactory.getInstance().createPlayer(playerSpawn.x, playerSpawn.y, map.getGround());
+		
+		Point enemySpawn = map.getSpawnLoc("enemy");
+		EntityFactory.getInstance().createEnemy(enemySpawn.x, enemySpawn.y, map.getGround());
+		
 		
 		//debug render
 		debugRenderer = new Box2DDebugRenderer();
@@ -75,22 +83,21 @@ public class LevelOne implements Screen {
 		Gdx.gl.glClear(GL20.GL_COLOR_BUFFER_BIT);
 		
 		accumulator += delta;
-		
 		while (accumulator >= step) {
 			box2dWorld.step(step, 5, 8);
 			accumulator -= step;
 		}
 		
-		world.setDelta(delta);
-
-		//box2dWorld.step(delta, 5, 8);
-		
+		world.setDelta(delta);		
 		world.process();
+		
 		camera.update();
 		
 		debugMatrix.set(camera.combined);
 		debugMatrix.scale(UnitConverter.getNumPixelsInMeter(), UnitConverter.getNumPixelsInMeter(), 1f);
 		debugRenderer.render(box2dWorld, debugMatrix);
+		
+		fps.log();
 	}
 	
 	@Override
