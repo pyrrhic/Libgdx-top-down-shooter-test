@@ -12,12 +12,17 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 
 public class Map {
-	private TiledMap map = new TmxMapLoader().load("map.tmx");	
+	private TiledMap map;	
 	private Body groundBody;
 	
-	public Map() {
+	public Map(String mapFileName) {
+		map = new TmxMapLoader().load(mapFileName);
 		createCollisionMap();
 		createGround();
+	}
+	
+	public TiledMap getTiledMap() {
+		return map;
 	}
 	
 	public Body getGround() {

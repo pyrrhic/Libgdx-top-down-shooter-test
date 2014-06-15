@@ -2,6 +2,7 @@ package com.mygdx.game;
 
 import com.artemis.Entity;
 import com.artemis.World;
+import com.artemis.managers.TagManager;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.BodyDef;
@@ -76,6 +77,8 @@ public class EntityFactory {
 		body.setUserData(e);
 		
 		e.addToWorld();
+		
+		world.getManager(TagManager.class).register("PLAYER", e);
 	}
 	
 	public void createEnemy(float x, float y, Body ground) {

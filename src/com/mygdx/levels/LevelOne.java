@@ -3,6 +3,7 @@ package com.mygdx.levels;
 import java.awt.Point;
 
 import com.artemis.World;
+import com.artemis.managers.TagManager;
 import com.badlogic.gdx.Game;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
@@ -15,7 +16,9 @@ import com.mygdx.game.AssetManager;
 import com.mygdx.game.EntityFactory;
 import com.mygdx.game.Map;
 import com.mygdx.game.UnitConverter;
+import com.mygdx.pathfind.NavMesh;
 import com.mygdx.systems.CameraSystem;
+import com.mygdx.systems.EnemySystem;
 import com.mygdx.systems.LifeInSecondsSystem;
 import com.mygdx.systems.PlayerInputSystem;
 import com.mygdx.systems.PlayerOrientationSystem;
@@ -37,6 +40,8 @@ public class LevelOne implements Screen {
 	
 	private FPSLogger fps = new FPSLogger();
 	
+	private NavMesh navMesh = new NavMesh();
+	
 	public LevelOne(Game game) {		
 		camera = AssetManager.getInstance().getCamera();
 		
@@ -56,14 +61,19 @@ public class LevelOne implements Screen {
 		world.setSystem(new PositionSystem());
 		world.setSystem(new LifeInSecondsSystem());
 		
+		//map and a system
+		Map map = new Map("map.tmx");
+		world.setSystem(new EnemySystem(map));
+		
+		//tags
+		world.setManager(new TagManager());
+		
 		world.initialize();
 		
 		//some of the input
 		Gdx.input.setInputProcessor(inputSystem);
 		
-		//misc like player, map, enemies, etc
-		Map map = new Map();
-		
+		//misc like player, map, enemies, etc		
 		Point playerSpawn = map.getSpawnLoc("player");
 		EntityFactory.getInstance().createPlayer(playerSpawn.x, playerSpawn.y, map.getGround());
 		
@@ -97,7 +107,9 @@ public class LevelOne implements Screen {
 		debugMatrix.scale(UnitConverter.getNumPixelsInMeter(), UnitConverter.getNumPixelsInMeter(), 1f);
 		debugRenderer.render(box2dWorld, debugMatrix);
 		
-		fps.log();
+		navMesh.drawNodes(camera);
+		
+		//fps.log();
 	}
 	
 	@Override

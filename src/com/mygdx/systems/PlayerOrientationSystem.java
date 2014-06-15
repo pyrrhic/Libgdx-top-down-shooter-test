@@ -31,7 +31,7 @@ public class PlayerOrientationSystem extends EntityProcessingSystem {
 	@Override
 	protected void process(Entity e) {
 		Position position = positionMapper.get(e);
-		Vector3 positionVec = new Vector3(position.x, position.y, 0);
+		Vector3 positionVec = new Vector3(position.x + 16f, position.y + 16f, 0);  // add half the player sprite width. should not be hard coded.
 		
 		PlayerInputSystem inputSystem = this.world.getSystem(PlayerInputSystem.class);
 		Point mousePosition = inputSystem.getMouseLocation();
