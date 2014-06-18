@@ -40,6 +40,10 @@ public class PathFinder {
 			}
 		}
 		
+		for (Node n : explored) {
+			System.out.println(n.getKey());
+		}
+		
 		return null;
 	}
 	
@@ -75,6 +79,7 @@ public class PathFinder {
 	
 	private List<Node> buildPath(Node goalNode) {
 		ArrayList<Node> path = new ArrayList<Node>();
+		path.add(goalNode);
 		Node parent = goalNode.parent;
 		
 		while (parent != null) {

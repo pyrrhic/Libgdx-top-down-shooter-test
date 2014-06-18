@@ -16,7 +16,6 @@ import com.mygdx.game.AssetManager;
 import com.mygdx.game.EntityFactory;
 import com.mygdx.game.Map;
 import com.mygdx.game.UnitConverter;
-import com.mygdx.pathfind.NavMesh;
 import com.mygdx.systems.CameraSystem;
 import com.mygdx.systems.EnemySystem;
 import com.mygdx.systems.LifeInSecondsSystem;
@@ -39,8 +38,6 @@ public class LevelOne implements Screen {
 	private OrthographicCamera camera;
 	
 	private FPSLogger fps = new FPSLogger();
-	
-	private NavMesh navMesh = new NavMesh();
 	
 	public LevelOne(Game game) {		
 		camera = AssetManager.getInstance().getCamera();
@@ -106,8 +103,6 @@ public class LevelOne implements Screen {
 		debugMatrix.set(camera.combined);
 		debugMatrix.scale(UnitConverter.getNumPixelsInMeter(), UnitConverter.getNumPixelsInMeter(), 1f);
 		debugRenderer.render(box2dWorld, debugMatrix);
-		
-		navMesh.drawNodes(camera);
 		
 		//fps.log();
 	}

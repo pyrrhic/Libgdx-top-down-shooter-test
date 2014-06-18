@@ -24,7 +24,7 @@ public class PathSmoother {
 		System.out.println(swapped);
 	}
 	
-	public Vector2[][] buildPortals(List<Node> path) {
+	private Vector2[][] buildPortals(List<Node> path) {
 		Vector2[][] portals = new Vector2[path.size()-1][1];
 		int index = 0;
 		for (int i = 0; i < path.size() - 1; i++) {

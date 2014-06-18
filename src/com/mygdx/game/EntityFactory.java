@@ -19,6 +19,7 @@ import com.mygdx.components.Movable;
 import com.mygdx.components.Physics;
 import com.mygdx.components.Player;
 import com.mygdx.components.Position;
+import com.mygdx.components.Size;
 import com.mygdx.game.CollisionHandler.EntityCategory;
 
 
@@ -71,6 +72,7 @@ public class EntityFactory {
 		e.addComponent(new Physics(body));
 		e.addComponent(new Movable(100 ,100));
 		e.addComponent(new Position(x, y));
+		e.addComponent(new Size((int)width, (int)height));
 		
 		e.addComponent(new Gun(.7f, 3)); //move this
 		
@@ -111,6 +113,7 @@ public class EntityFactory {
 		e.addComponent(new Physics(body));
 		e.addComponent(new Movable(100 ,100));
 		e.addComponent(new Position(x, y));
+		e.addComponent(new Size((int)width, (int)height));
 		
 		e.addComponent(new Gun(.7f, 3)); //move this
 		

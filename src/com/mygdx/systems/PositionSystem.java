@@ -6,17 +6,18 @@ import com.artemis.Entity;
 import com.artemis.annotations.Mapper;
 import com.artemis.systems.EntityProcessingSystem;
 import com.mygdx.components.Physics;
-import com.mygdx.components.Player;
 import com.mygdx.components.Position;
+import com.mygdx.components.Size;
 import com.mygdx.game.UnitConverter;
 
 public class PositionSystem extends EntityProcessingSystem {
 	@Mapper ComponentMapper<Position> positionMapper;
 	@Mapper ComponentMapper<Physics> physicsMapper;
+	@Mapper ComponentMapper<Size> sizeMapper;
 	
 	@SuppressWarnings({ "unchecked" })
 	public PositionSystem() {
-		super(Aspect.getAspectForAll(Player.class, Position.class, Physics.class));
+		super(Aspect.getAspectForAll(Position.class, Physics.class, Size.class));
 	}
 
 	/**
@@ -24,13 +25,17 @@ public class PositionSystem extends EntityProcessingSystem {
 	 */
 	@Override
 	protected void process(Entity e) {
-		Position position = positionMapper.get(e);
 		Physics physics = physicsMapper.get(e);
+		Size entitySize = sizeMapper.get(e);
+		int width = entitySize.getWidth();
+		float libX = UnitConverter.box2dCoordToLibCoord(physics.body.getPosition().x, UnitConverter.convertPixelsToMeters(width));
+		float libY = UnitConverter.box2dCoordToLibCoord(physics.body.getPosition().y, UnitConverter.convertPixelsToMeters(width));
 		
-		int playerWidth = 32;
+		Position position = positionMapper.get(e);
+		position.x = libX + width / 2;
 		
-		position.x = UnitConverter.box2dCoordToLibCoord(physics.body.getPosition().x, UnitConverter.convertPixelsToMeters(playerWidth));
-		position.y = UnitConverter.box2dCoordToLibCoord(physics.body.getPosition().y, UnitConverter.convertPixelsToMeters(playerWidth));
+		int height = entitySize.getHeight();
+		position.y = libY + height / 2;
 	}
 
 }
