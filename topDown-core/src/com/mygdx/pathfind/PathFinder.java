@@ -15,7 +15,7 @@ public class PathFinder {
 		ArrayList<Node> reachable = new ArrayList<Node>();
 		ArrayList<Node> explored = new ArrayList<Node>();
 		
-		startNode.cost = 0;
+		startNode.cost = 1;
 		reachable.add(startNode);
 		
 		while (reachable.size() > 0) {
@@ -42,10 +42,6 @@ public class PathFinder {
 			}
 		}
 		
-		for (Node n : explored) {
-			System.out.println(n.getKey());
-		}
-		
 		return new ArrayList<Node>();
 	}
 	
@@ -57,12 +53,24 @@ public class PathFinder {
 		ArrayList<Node> unexploredNeighbors = new ArrayList<Node>();
 		
 		for (Node neighbor : node.getNeighbors().values()) {
-			if (!explored.contains(neighbor)) {
+			if (!doesListContainNode(neighbor, explored)) {
 				unexploredNeighbors.add(neighbor);
 			}	
 		}
 		
 		return unexploredNeighbors;
+	}
+	
+	private boolean doesListContainNode(Node node, List<Node> listOfNodes) {
+		String key = node.getKey();
+		
+		for(int i = 0; i < listOfNodes.size(); i++) {
+			if (key.equals(listOfNodes.get(i).getKey())) {
+				return true;
+			}
+		}
+		
+		return false;
 	}
 	
 	private Node chooseNode(ArrayList<Node> reachable) {

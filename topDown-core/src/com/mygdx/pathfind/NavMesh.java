@@ -22,15 +22,8 @@ import com.badlogic.gdx.math.Vector2;
 import com.mygdx.components.Position;
 
 public class NavMesh {
-	public NodeList nodeList = new NodeList(30);
-	
-	public List<Node> path;
-	
-	//ONLY UP HERE CUZ TESTING
-	private PathSmoother pathSmoother;
-	
 	public NodeList buildNavMesh(TiledMap map) {
-		//TiledMap map = new TmxMapLoader().load("map.tmx");
+		NodeList nodeList = new NodeList(30);
 		
 		MapLayer layer = map.getLayers().get("nav mesh");
 		MapObjects objects = layer.getObjects();
@@ -87,7 +80,7 @@ public class NavMesh {
 //		pathSmoother.smoothPath(new Vector2(start.x,  start.y), path);
 	}
 	
-	public Node getNodeEntityIsIn(Position position) {
+	public Node getNodeEntityIsIn(Position position, NodeList nodeList) {
 		Vector2 positionVector = new Vector2(position.x, position.y);
 		Node currentNode = null;
 		
@@ -103,7 +96,7 @@ public class NavMesh {
 		return currentNode;
 	}
 	
-	public void drawNavMesh(OrthographicCamera camera) {
+	public void drawNavMesh(OrthographicCamera camera, NodeList nodeList) {
 		ShapeRenderer triangleRenderer = new ShapeRenderer();
 		triangleRenderer.setProjectionMatrix(camera.combined);
 		triangleRenderer.begin(ShapeType.Line);
@@ -123,7 +116,7 @@ public class NavMesh {
 		triangleRenderer.dispose();
 	}
 	
-	public void drawNodes(OrthographicCamera camera) {
+	public void drawNodes(OrthographicCamera camera, NodeList nodeList) {
 		SpriteBatch batch = new SpriteBatch();
 		batch.setProjectionMatrix(camera.combined);
 		BitmapFont font = new BitmapFont();
@@ -156,7 +149,7 @@ public class NavMesh {
 		batch.dispose();
 	}
 	
-	public void drawNeighbors(OrthographicCamera camera) {
+	public void drawNeighbors(OrthographicCamera camera, NodeList nodeList) {
 		ShapeRenderer lineRenderer = new ShapeRenderer();
 		lineRenderer.setProjectionMatrix(camera.combined);
 		lineRenderer.begin(ShapeType.Line);

@@ -1,6 +1,8 @@
 package com.mygdx.pathfind;
 
 import java.util.HashMap;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 public class NodeList {
@@ -33,7 +35,16 @@ public class NodeList {
 		return returnNode;
 	}
 	
-	public HashMap<String, Node> getNodes() {
+	public Map<String, Node> getNodes() {
 		return nodes;
+	}
+	
+	public void resetParentsAndCosts() {
+		for (Entry<String, Node> entry : nodes.entrySet()) {
+			Node node = entry.getValue();
+			node.parent = null;
+			node.cost = 9999;
+			entry.setValue(node);
+		}
 	}
 }

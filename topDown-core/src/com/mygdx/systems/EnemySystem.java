@@ -15,6 +15,7 @@ import com.mygdx.components.MovementPath;
 import com.mygdx.components.Physics;
 import com.mygdx.components.Position;
 import com.mygdx.components.Size;
+import com.mygdx.game.AssetManager;
 import com.mygdx.game.Map;
 import com.mygdx.pathfind.NavMesh;
 import com.mygdx.pathfind.Node;
@@ -55,23 +56,30 @@ public class EnemySystem extends EntityProcessingSystem {
 
 	@Override
 	protected void process(Entity e) {
+		moveToPosition(e);
+	}
+	
+	private void moveToPosition(Entity e) {
 		MovementPath enemyMovementPath = movementPathMapper.getSafe(e);
 
 		if (enemyMovementPath == null) {
-			Position playerPosition = positionMapper.get(player);
-			Node playerNode = navMesh.getNodeEntityIsIn(playerPosition);
+			Node playerNode = navMesh.getNodeEntityIsIn(playerPosition, nodeList);
 			
 			Position enemyPosition = positionMapper.get(e);
-			Node enemyNode = navMesh.getNodeEntityIsIn(enemyPosition);
+			Node enemyNode = navMesh.getNodeEntityIsIn(enemyPosition, nodeList);
 
 			List<Node> path = pathFinder.findPath(enemyNode, playerNode);
-			e.addComponent(new MovementPath(path));
+			nodeList.resetParentsAndCosts();
+			
+			if (path.size() > 0) {
+				e.addComponent(new MovementPath(path));	
+			}
 		}
 		else {
 			Node targetNode = enemyMovementPath.getCurrentNode();
 			if (targetNode != null) {
 				Position enemyPosition = positionMapper.get(e);
-				if (Math.round(enemyPosition.x) == targetNode.x && Math.round(enemyPosition.y) == targetNode.y) {
+				if (Math.abs(Math.round(enemyPosition.x) - targetNode.x) < 5 && Math.abs(Math.round(enemyPosition.y) - targetNode.y) < 5) {
 					Body body = physicsMapper.get(e).body;
 					body.setLinearVelocity(0, 0);
 					
@@ -80,7 +88,7 @@ public class EnemySystem extends EntityProcessingSystem {
 				else {
 					Vector2 directionalVelocity = getDirectionalVelocity(new Vector2(enemyPosition.x, enemyPosition.y), new Vector2(targetNode.x, targetNode.y), 100f);
 					Body body = physicsMapper.get(e).body;
-					body.applyForceToCenter(directionalVelocity.x, directionalVelocity.y, true);	
+					body.applyForceToCenter(directionalVelocity.x, directionalVelocity.y, true);
 				}
 			}
 			else {
@@ -89,7 +97,7 @@ public class EnemySystem extends EntityProcessingSystem {
 		}
 	}
 	
-	public Vector2 getDirectionalVelocity(Vector2 start, Vector2 end, float maxVelocity) {				
+	private Vector2 getDirectionalVelocity(Vector2 start, Vector2 end, float maxVelocity) {				
 		// x component of velocity = velocity * cosine of angle
 		// y component of velocity = velocity * sine of angle
 		
