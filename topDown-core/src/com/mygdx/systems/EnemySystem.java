@@ -15,10 +15,10 @@ import com.mygdx.components.MovementPath;
 import com.mygdx.components.Physics;
 import com.mygdx.components.Position;
 import com.mygdx.components.Size;
+import com.mygdx.game.AssetManager;
 import com.mygdx.game.Map;
 import com.mygdx.pathfind.NavMesh;
 import com.mygdx.pathfind.Node;
-import com.mygdx.pathfind.NodeList;
 import com.mygdx.pathfind.PathFinder;
 import com.mygdx.pathfind.PathSmoother;
 
@@ -31,29 +31,30 @@ public class EnemySystem extends EntityProcessingSystem {
 	private Entity player;
 	private Position playerPosition;
 
-	private Map map;
 	private NavMesh navMesh;
 	private PathFinder pathFinder;
 	private PathSmoother pathSmoother;
 
-	private NodeList nodeList;
-
+	private List<Node> debugPath;
+	
 	@SuppressWarnings("unchecked")
 	public EnemySystem(Map map) {
 		super(Aspect.getAspectForAll(Enemy.class));
 
-		this.map = map;
-		navMesh = new NavMesh();
+		navMesh = new NavMesh(30);
+		navMesh.buildNavMesh(map.getTiledMap());
+		
 		pathFinder = new PathFinder();
 		pathSmoother = new PathSmoother();
-
-		nodeList = navMesh.buildNavMesh(map.getTiledMap());
 	}
 
 	@Override
 	protected void begin() {
 		player = world.getManager(TagManager.class).getEntity("PLAYER");
 		playerPosition = positionMapper.get(player);
+		
+		navMesh.drawNavMesh(AssetManager.getInstance().getCamera());
+		navMesh.drawNodes(AssetManager.getInstance().getCamera());
 	}
 
 	@Override
@@ -61,18 +62,27 @@ public class EnemySystem extends EntityProcessingSystem {
 		moveToPosition(e);
 	}
 	
+	@Override
+	protected void end() {
+		//Vector2[][] debugPortals = pathSmoother.buildPortals(debugPath);
+		//pathSmoother.drawPortals(AssetManager.getInstance().getCamera(), debugPortals);
+	}
+	
 	private void moveToPosition(Entity e) {
 		MovementPath enemyMovementPath = movementPathMapper.getSafe(e);
 
 		if (enemyMovementPath == null) {
-			Node playerNode = navMesh.getNodeEntityIsIn(playerPosition, nodeList);
+			Node playerNode = navMesh.getNodeEntityIsIn(playerPosition);
 			
 			Position enemyPosition = positionMapper.get(e);
-			Node enemyNode = navMesh.getNodeEntityIsIn(enemyPosition, nodeList);
+			Node enemyNode = navMesh.getNodeEntityIsIn(enemyPosition);
 
 			List<Node> path = pathFinder.findPath(enemyNode, playerNode);
-			pathSmoother.smoothPath(new Vector2(enemyPosition.x, enemyPosition.y), path);
-			nodeList.resetParentsAndCosts();
+			debugPath = path;
+			//pathSmoother.smoothPath(new Vector2(enemyPosition.x, enemyPosition.y), path);
+
+
+			navMesh.resetParentsAndCosts();
 			
 			if (path.size() > 0) {
 				e.addComponent(new MovementPath(path));	
@@ -91,7 +101,7 @@ public class EnemySystem extends EntityProcessingSystem {
 				else {
 					Vector2 directionalVelocity = getDirectionalVelocity(new Vector2(enemyPosition.x, enemyPosition.y), new Vector2(targetNode.x, targetNode.y), 100f);
 					Body body = physicsMapper.get(e).body;
-					body.applyForceToCenter(directionalVelocity.x, directionalVelocity.y, true);
+					//body.applyForceToCenter(directionalVelocity.x, directionalVelocity.y, true);
 				}
 			}
 			else {

@@ -3,7 +3,12 @@ package com.mygdx.pathfind;
 import java.awt.Point;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
+import com.badlogic.gdx.graphics.Color;
+import com.badlogic.gdx.graphics.OrthographicCamera;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer;
+import com.badlogic.gdx.graphics.glutils.ShapeRenderer.ShapeType;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 
@@ -67,7 +72,7 @@ public class PathSmoother {
 		return Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
 	}
 	
-	private Vector2[][] buildPortals(List<Node> path) {
+	public Vector2[][] buildPortals(List<Node> path) {
 		Vector2[][] portals = new Vector2[path.size()-1][1];
 		int index = 0;
 		for (int i = 0; i < path.size() - 1; i++) {
@@ -80,6 +85,20 @@ public class PathSmoother {
 		}
 		
 		return portals;
+	}
+	
+	public void drawPortals(OrthographicCamera camera, Vector2[][] portals) {
+		ShapeRenderer portalRenderer = new ShapeRenderer();
+		portalRenderer.setProjectionMatrix(camera.combined);
+		portalRenderer.begin(ShapeType.Line);
+		portalRenderer.setColor(Color.RED);
+		
+		for(int i = 0; i < portals.length; i++) {
+			portalRenderer.line(portals[i][0].x, portals[i][0].y, portals[i][1].x, portals[i][1].y);
+		}
+		
+		portalRenderer.end();
+		portalRenderer.dispose();
 	}
 	
 	private boolean areLeftAndRightBackwards(Vector2 apex, Vector2 left, Vector2 right) {
