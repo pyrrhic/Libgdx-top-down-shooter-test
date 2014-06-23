@@ -7,21 +7,64 @@ import java.util.List;
 import com.badlogic.gdx.math.Polygon;
 import com.badlogic.gdx.math.Vector2;
 
-public class PathSmoother {	
-	
+public class PathSmoother {		
 	public void smoothPath(Vector2 startingPoint, List<Node> path) {
 		ArrayList<Point> pathPoints = new ArrayList<Point>();
 		
 		//int playerSize = 32;
 		Vector2[][] portals = buildPortals(path);
 		
-		Vector2 left = portals[0][0];
-		Vector2 right = portals[0][1];
+		Vector2 leftEdge = portals[0][0];
+		Vector2 rightEdge = portals[0][1];
 		
 		//swap if necessary
-		boolean swapped = swapLeftAndRightIfNecessary(left, right, startingPoint);
+		swapLeftAndRightIfNecessary(leftEdge, rightEdge, startingPoint);
 		
-		System.out.println(swapped);
+		Vector2 leftFunnel = leftEdge;
+		Vector2 rightFunnel = rightEdge;
+		
+		for (int i = 1; i < portals.length; i++) {
+			leftEdge = portals[i][0];
+			rightEdge = portals[i][1];
+			
+			swapLeftAndRightIfNecessary(leftEdge, rightEdge, startingPoint);
+			
+			//check left side
+			if(areLeftAndRightBackwards(startingPoint, leftEdge, rightEdge)) {
+				//restart
+			}
+			else if(isEdgeWithinFunnel(leftFunnel, rightFunnel, leftEdge)) {
+				leftFunnel = leftEdge; // shrink or maintain the funnel
+				//left index ++   keep track for when we restart
+			}
+			
+			//check right side
+		}
+		
+		//some special case handling for end point being in funnel. 
+		//http://yushutong.files.wordpress.com/2013/06/screen-shot-2013-06-16-at-12-54-18-pm.png
+		//look at http://yushutong.files.wordpress.com/2013/06/screen-shot-2013-06-16-at-12-54-33-pm.png
+	}
+	
+	private boolean isEdgeWithinFunnel(Vector2 leftFunnel, Vector2 rightFunnel, Vector2 edge) {
+		/**
+		 * line between left and right funnel.
+		 * angle of line to new edge
+		 * if angle > 90, it's out.
+		 */
+		// cos(c) = (a2 + b2 - c2) / 2ab
+		// C = inverse of cos((a2 + b2 - c2) / 2ab)
+		
+		double a = distanceBetweenTwoPoints(leftFunnel, rightFunnel);
+		double b = distanceBetweenTwoPoints(leftFunnel, edge);
+		double c = distanceBetweenTwoPoints(rightFunnel, edge);
+		double angleC = Math.acos((a * a + b * b - c * c) / 2 * a * b);
+		
+		return (angleC <= 90) ? true : false;
+	}
+	
+	private double distanceBetweenTwoPoints(Vector2 a, Vector2 b) {		
+		return Math.sqrt((b.x - a.x) * (b.x - a.x) + (b.y - a.y) * (b.y - a.y));
 	}
 	
 	private Vector2[][] buildPortals(List<Node> path) {
@@ -39,24 +82,24 @@ public class PathSmoother {
 		return portals;
 	}
 	
-	public boolean swapLeftAndRightIfNecessary(Vector2 left, Vector2 right, Vector2 apex) {
+	private boolean areLeftAndRightBackwards(Vector2 apex, Vector2 left, Vector2 right) {
 		Vector2 a = new Vector2(left.x - apex.x, left.y - apex.y);
 		Vector2 b = new Vector2(right.x - apex.x, right.y - apex.y);
 		
 		float resultingY = a.y * b.y;
 		
-		boolean swapped = false;
-		if (resultingY < 0) {
+		return(resultingY <= 0.0f) ? true : false;
+	}
+	
+	private void swapLeftAndRightIfNecessary(Vector2 left, Vector2 right, Vector2 apex) {		
+		boolean swapped = areLeftAndRightBackwards(apex, left, right);
+		if (swapped) {
 			Vector2 temp = left;
 			left.x = right.x;
 			left.y = right.y;
 			right.x = temp.x;
 			right.y = temp.y;	
-			
-			swapped = true;
 		}
-		
-		return swapped;
 	}
 	
 	private Vector2[] getSharedEdge(Polygon p1, Polygon p2) {	

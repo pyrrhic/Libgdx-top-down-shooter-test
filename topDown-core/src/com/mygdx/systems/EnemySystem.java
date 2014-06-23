@@ -15,12 +15,12 @@ import com.mygdx.components.MovementPath;
 import com.mygdx.components.Physics;
 import com.mygdx.components.Position;
 import com.mygdx.components.Size;
-import com.mygdx.game.AssetManager;
 import com.mygdx.game.Map;
 import com.mygdx.pathfind.NavMesh;
 import com.mygdx.pathfind.Node;
 import com.mygdx.pathfind.NodeList;
 import com.mygdx.pathfind.PathFinder;
+import com.mygdx.pathfind.PathSmoother;
 
 public class EnemySystem extends EntityProcessingSystem {
 	@Mapper ComponentMapper<Physics> physicsMapper;
@@ -34,6 +34,7 @@ public class EnemySystem extends EntityProcessingSystem {
 	private Map map;
 	private NavMesh navMesh;
 	private PathFinder pathFinder;
+	private PathSmoother pathSmoother;
 
 	private NodeList nodeList;
 
@@ -44,6 +45,7 @@ public class EnemySystem extends EntityProcessingSystem {
 		this.map = map;
 		navMesh = new NavMesh();
 		pathFinder = new PathFinder();
+		pathSmoother = new PathSmoother();
 
 		nodeList = navMesh.buildNavMesh(map.getTiledMap());
 	}
@@ -69,6 +71,7 @@ public class EnemySystem extends EntityProcessingSystem {
 			Node enemyNode = navMesh.getNodeEntityIsIn(enemyPosition, nodeList);
 
 			List<Node> path = pathFinder.findPath(enemyNode, playerNode);
+			pathSmoother.smoothPath(new Vector2(enemyPosition.x, enemyPosition.y), path);
 			nodeList.resetParentsAndCosts();
 			
 			if (path.size() > 0) {
